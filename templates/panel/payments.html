@@ -1,0 +1,23 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}Payments Report{% endblock %}
+{% block content %}
+<form method="get" class="card row" style="margin-bottom:18px;align-items:flex-end">
+  <div class="field"><label>From</label><input class="input" type="date" name="from" value="{{ start }}"></div>
+  <div class="field"><label>To</label><input class="input" type="date" name="to" value="{{ end }}"></div>
+  <div class="field"><label>Doctor</label><select class="input" name="doctor"><option value="">All doctors</option>{% for d in doctors %}<option value="{{ d.pk }}" {% if doctor_id == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.display_name }}</option>{% endfor %}</select></div>
+  <button class="btn primary">Apply</button>
+</form>
+<div class="grid g4">
+  <div class="card stat"><span class="ico blue">{% icon 'users' 24 %}</span><div><b>{{ count }}</b><span>Paid check-ups</span></div></div>
+  <div class="card stat"><span class="ico green">{% icon 'wallet' 24 %}</span><div><b>{{ total|money }}</b><span>Total collected</span></div></div>
+  <div class="card stat"><span class="ico amber">{% icon 'stethoscope' 24 %}</span><div><b>{{ doc_total|money }}</b><span>Doctors' share</span></div></div>
+  <div class="card stat"><span class="ico">{% icon 'home' 24 %}</span><div><b>{{ hosp_total|money }}</b><span>Hospital share</span></div></div>
+</div>
+<div class="card flush mt"><div class="card-head"><h3>By doctor</h3></div>
+{% if per_doctor %}<div class="table-wrap"><table class="t"><thead><tr><th>Doctor</th><th>Share %</th><th>Check-ups</th><th>Collected</th><th>Doctor gets</th><th>Hospital gets</th></tr></thead><tbody>
+{% for r in per_doctor %}<tr><td><b>Dr. {{ r.doctor__user__first_name }} {{ r.doctor__user__last_name }}</b></td><td>{{ r.doctor__share_percent }}%</td><td>{{ r.n }}</td><td>{{ r.total|money }}</td><td>{{ r.doc|money }}</td><td>{{ r.hosp|money }}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="empty">No payments in this period.</div>{% endif %}</div>
+<div class="card flush mt"><div class="card-head"><h3>All payments</h3></div>
+{% if visits %}<div class="table-wrap"><table class="t"><thead><tr><th>Receipt</th><th>Date</th><th>Patient</th><th>Doctor</th><th>Charges</th><th>Doctor</th><th>Hospital</th><th></th></tr></thead><tbody>
+{% for v in visits %}<tr><td>{{ v.receipt_no }}</td><td class="small">{{ v.paid_at|date:"d M Y, h:i A" }}</td><td>{{ v.patient_name }}</td><td>{{ v.doctor.display_name }}</td><td><b>{{ v.fee|money }}</b></td><td>{{ v.doctor_amount|money }} <small class="muted">{{ v.doctor_percent }}%</small></td><td>{{ v.hospital_amount|money }}</td><td class="right"><a class="btn sm" href="{% url 'visit-detail' v.pk %}">View</a></td></tr>{% endfor %}</tbody></table></div>{% endif %}</div>
+{% endblock %}

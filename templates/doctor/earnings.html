@@ -1,0 +1,17 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}My Earnings{% endblock %}
+{% block subheading %}<div class="sub">Records are sent to you automatically when the patient pays at the admin desk.</div>{% endblock %}
+{% block content %}
+<div class="grid g4">
+  <div class="card stat"><span class="ico green">{% icon 'wallet' 24 %}</span><div><b>{{ total|money }}</b><span>Total earned</span></div></div>
+  <div class="card stat"><span class="ico blue">{% icon 'trend' 24 %}</span><div><b>{{ month|money }}</b><span>This month</span></div></div>
+  <div class="card stat"><span class="ico">{% icon 'users' 24 %}</span><div><b>{{ count }}</b><span>Paid check-ups</span></div></div>
+  <div class="card stat"><span class="ico amber">{% icon 'award' 24 %}</span><div><b>{{ percent }}%</b><span>Your share per payment</span></div></div>
+</div>
+{% if pending %}<div class="note warn mt">{{ pending }} check-up{{ pending|pluralize }} sent to admin, waiting for the patient's payment.</div>{% endif %}
+<div class="card flush mt">
+{% if visits %}<div class="table-wrap"><table class="t"><thead><tr><th>Receipt</th><th>Date</th><th>Patient</th><th>Charges</th><th>Your %</th><th>Your share</th><th></th></tr></thead><tbody>
+{% for v in visits %}<tr><td>{{ v.receipt_no }}</td><td class="small">{{ v.paid_at|date:"d M Y, h:i A" }}</td><td>{{ v.patient_name }}</td><td>{{ v.fee|money }}</td><td>{{ v.doctor_percent }}%</td><td><b style="color:var(--ok)">{{ v.doctor_amount|money }}</b></td><td class="right"><a class="btn sm" href="{% url 'visit-detail' v.pk %}">View</a></td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="empty">{% icon 'wallet' 44 %}<div>No paid check-ups yet.</div></div>{% endif %}
+</div>
+{% endblock %}

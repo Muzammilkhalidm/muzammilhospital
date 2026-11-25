@@ -1,0 +1,6 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}New admin account{% endblock %}
+{% block content %}
+<div class="card" style="max-width:760px"><form method="post">{% csrf_token %}{% include "partials/form_fields.html" %}
+<div class="row mt"><button class="btn primary" type="submit">Create admin</button><a class="btn" href="{% url 'admin-staff' %}">Cancel</a></div></form></div>
+{% endblock %}

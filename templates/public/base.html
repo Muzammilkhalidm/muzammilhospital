@@ -1,0 +1,26 @@
+{% load static ui %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ HOSPITAL_NAME }}{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'css/app.css' %}">
+<link rel="icon" href="{% static 'img/favicon.svg' %}">
+</head>
+<body>
+{% include "partials/messages.html" %}
+<header class="pub-nav"><div class="in">
+  <a class="brand" href="{% url 'home' %}"><span class="logo">{% icon 'cross' 22 %}</span><span><b>Muzammil's Hospital</b><small>CARING FOR YOU</small></span></a>
+  <nav>
+    <a class="link" href="{% url 'home' %}#services">Services</a>
+    <a class="link" href="{% url 'home' %}#doctors">Doctors</a>
+    <a class="link" href="{% url 'home' %}#how">How it works</a>
+    {% if user.is_authenticated %}<a class="btn primary" href="{% url 'go' %}">Open my panel</a>
+    {% else %}<a class="btn" href="{% url 'login' %}">Sign in</a><a class="btn primary" href="{% url 'register-patient' %}">Register</a>{% endif %}
+  </nav>
+</div></header>
+{% block body %}{% endblock %}
+<footer class="footer"><b>{{ HOSPITAL_NAME }}</b><br>Quality care, digital records, honest billing.<br><span class="small">&copy; {% now "Y" %} {{ HOSPITAL_NAME }}. All rights reserved.</span></footer>
+<script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>

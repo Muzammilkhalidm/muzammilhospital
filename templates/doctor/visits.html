@@ -1,0 +1,13 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}My Check-ups{% endblock %}
+{% block actions %}<form class="searchbar" method="get"><input type="hidden" name="status" value="{{ st }}"><input class="input" name="q" value="{{ q }}" placeholder="Patient name"><button class="btn">{% icon 'search' %}</button></form>{% endblock %}
+{% block content %}
+<div class="tabs"><a class="{% if not st %}on{% endif %}" href="?">All</a><a class="{% if st == 'draft' %}on{% endif %}" href="?status=draft">Drafts</a><a class="{% if st == 'submitted' %}on{% endif %}" href="?status=submitted">Awaiting payment</a><a class="{% if st == 'paid' %}on{% endif %}" href="?status=paid">Paid</a></div>
+<div class="card flush">
+{% if visits %}<div class="table-wrap"><table class="t"><thead><tr><th>Patient</th><th>Date</th><th>Problems</th><th>Status</th><th></th></tr></thead><tbody>
+{% for v in visits %}<tr><td><div class="who">{% avatar v.patient "sm" %}<div><b>{{ v.patient_name }}</b><small>{{ v.code }}</small></div></div></td>
+<td class="small">{{ v.created_at|date:"d M Y, h:i A" }}</td><td>{{ v.problem_list|first|default:"-"|truncatechars:50 }}</td><td>{% include "partials/status_badge.html" %}</td>
+<td class="right">{% if v.status == 'draft' %}<a class="btn sm primary" href="{% url 'doctor-visit-edit' v.pk %}">Continue</a>{% else %}<a class="btn sm" href="{% url 'visit-detail' v.pk %}">View</a>{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="empty">{% icon 'clipboard' 44 %}<div>No check-ups found.</div></div>{% endif %}
+</div>
+{% endblock %}

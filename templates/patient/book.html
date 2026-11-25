@@ -1,0 +1,6 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}Book appointment{% endblock %}
+{% block content %}
+<div class="card" style="max-width:720px"><form method="post">{% csrf_token %}{% include "partials/form_fields.html" %}
+<div class="row mt"><button class="btn primary" type="submit">{% icon 'calendar' %} Book appointment</button><a class="btn" href="{% url 'patient-dashboard' %}">Cancel</a></div></form></div>
+{% endblock %}

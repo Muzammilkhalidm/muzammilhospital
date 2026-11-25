@@ -1,0 +1,69 @@
+{% load static ui %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ page_title|default:"Dashboard" }}{% endblock %} | {{ HOSPITAL_NAME }}</title>
+<link rel="stylesheet" href="{% static 'css/app.css' %}">
+<link rel="icon" href="{% static 'img/favicon.svg' %}">
+{% block head %}{% endblock %}
+</head>
+<body>
+{% include "partials/messages.html" %}
+{% with n=request.resolver_match.url_name %}
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="{% url 'go' %}">
+      <span class="logo">{% icon 'cross' 22 %}</span>
+      <span><b>Muzammil's Hospital</b><small>{% if role == 'admin' %}ADMIN PANEL{% elif role == 'doctor' %}DOCTOR PANEL{% else %}PATIENT PORTAL{% endif %}</small></span>
+    </a>
+    <nav class="nav">
+      {% if role == 'admin' %}
+        <a href="{% url 'admin-dashboard' %}" class="{% if n == 'admin-dashboard' %}active{% endif %}">{% icon 'dashboard' %} Dashboard</a>
+        <a href="{% url 'admin-doctor-requests' %}" class="{% if n == 'admin-doctor-requests' %}active{% endif %}">{% icon 'award' %} Doctor Requests{% if pending_doctors_count %}<span class="count">{{ pending_doctors_count }}</span>{% endif %}</a>
+        <div class="label">Hospital</div>
+        <a href="{% url 'admin-billing' %}" class="{% if n == 'admin-billing' %}active{% endif %}">{% icon 'printer' %} Billing &amp; Print</a>
+        <a href="{% url 'admin-appointments' %}" class="{% if 'appointment' in n %}active{% endif %}">{% icon 'calendar' %} Appointments</a>
+        <a href="{% url 'admin-doctors' %}" class="{% if 'admin-doctor' in n and n != 'admin-doctor-requests' %}active{% endif %}">{% icon 'stethoscope' %} Doctors</a>
+        <a href="{% url 'admin-patients' %}" class="{% if 'admin-patient' in n %}active{% endif %}">{% icon 'users' %} Patients</a>
+        <div class="label">Reports</div>
+        <a href="{% url 'admin-payments' %}" class="{% if n == 'admin-payments' %}active{% endif %}">{% icon 'wallet' %} Payments Report</a>
+        <a href="{% url 'admin-records' %}" class="{% if n == 'admin-records' %}active{% endif %}">{% icon 'archive' %} Patient Records</a>
+        {% if is_main_admin %}<a href="{% url 'admin-staff' %}" class="{% if 'admin-staff' in n %}active{% endif %}">{% icon 'shield' %} Admin Accounts</a>{% endif %}
+      {% elif role == 'doctor' %}
+        <a href="{% url 'doctor-dashboard' %}" class="{% if n == 'doctor-dashboard' %}active{% endif %}">{% icon 'dashboard' %} Dashboard</a>
+        <a href="{% url 'doctor-queue' %}" class="{% if n == 'doctor-queue' %}active{% endif %}">{% icon 'calendar' %} Patient Queue</a>
+        <a href="{% url 'doctor-visits' %}" class="{% if n == 'doctor-visits' or n == 'doctor-visit-edit' %}active{% endif %}">{% icon 'clipboard' %} My Check-ups</a>
+        <a href="{% url 'doctor-earnings' %}" class="{% if n == 'doctor-earnings' %}active{% endif %}">{% icon 'wallet' %} My Earnings</a>
+      {% elif role == 'patient' %}
+        <a href="{% url 'patient-dashboard' %}" class="{% if n == 'patient-dashboard' %}active{% endif %}">{% icon 'dashboard' %} Dashboard</a>
+        <a href="{% url 'patient-book' %}" class="{% if n == 'patient-book' %}active{% endif %}">{% icon 'plus' %} Book Appointment</a>
+        <a href="{% url 'patient-appointments' %}" class="{% if n == 'patient-appointments' %}active{% endif %}">{% icon 'calendar' %} My Appointments</a>
+        <a href="{% url 'patient-records' %}" class="{% if n == 'patient-records' %}active{% endif %}">{% icon 'file' %} My Records</a>
+        <a href="{% url 'patient-doctors' %}" class="{% if n == 'patient-doctors' %}active{% endif %}">{% icon 'stethoscope' %} Our Doctors</a>
+      {% endif %}
+      <div class="label">Account</div>
+      <a href="{% url 'profile' %}" class="{% if n == 'profile' %}active{% endif %}">{% icon 'user' %} My Profile</a>
+      <a href="{% url 'password' %}" class="{% if n == 'password' %}active{% endif %}">{% icon 'key' %} Change Password</a>
+      <a href="{% url 'logout' %}">{% icon 'logout' %} Sign out</a>
+    </nav>
+    <div class="side-user">
+      {% avatar me "md" %}
+      <div><b>{{ user.get_full_name|default:user.username }}</b><small>{% if role == 'admin' %}{% if is_main_admin %}Main admin{% else %}Admin{% endif %}{% else %}{{ role }}{% endif %}</small></div>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="Menu">{% icon 'menu' 24 %}</button>
+      <div class="grow"><h1>{% block heading %}{{ page_title }}{% endblock %}</h1>{% block subheading %}{% endblock %}</div>
+      <div class="row">{% block actions %}{% endblock %}</div>
+    </header>
+    <main class="content">{% block content %}{% endblock %}</main>
+  </div>
+</div>
+{% endwith %}
+<script src="{% static 'js/app.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

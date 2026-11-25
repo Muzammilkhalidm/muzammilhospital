@@ -1,0 +1,18 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}{{ p.full_name }}{% endblock %}
+{% block actions %}<a class="btn" href="{% url 'admin-patients' %}">&larr; All patients</a><a class="btn primary" href="{% url 'admin-patient-zip' p.pk %}">{% icon 'download' %} Download records (ZIP)</a>{% endblock %}
+{% block content %}
+<div class="grid g-main">
+  <div class="card flush">
+    <div class="card-head"><h3>Check-up history</h3></div>
+    {% if visits %}<div class="table-wrap"><table class="t"><thead><tr><th>Date</th><th>Doctor</th><th>Status</th><th>Charges</th><th></th></tr></thead><tbody>
+    {% for v in visits %}<tr><td>{{ v.created_at|date:"d M Y" }}<br><small class="muted">{{ v.code }}</small></td><td>{{ v.doctor.display_name }}</td><td>{% include "partials/status_badge.html" %}</td><td>{% if v.fee is not None %}{{ v.fee|money }}{% else %}-{% endif %}</td><td class="right"><a class="btn sm" href="{% url 'visit-detail' v.pk %}">Open</a></td></tr>{% endfor %}</tbody></table></div>
+    {% else %}<div class="empty">No check-ups yet.</div>{% endif %}
+  </div>
+  <div class="grid" style="align-content:start">
+    <div class="card"><div class="row">{% avatar p "lg" %}<div><h3>{{ p.full_name }}</h3><div class="muted">{{ p.code }}</div></div></div>
+      <dl class="kv mt"><dt>Phone</dt><dd>{{ p.phone }}</dd><dt>Gender</dt><dd>{{ p.gender }}</dd><dt>Age</dt><dd>{{ p.age|default_if_none:"-" }}</dd><dt>Blood group</dt><dd>{{ p.blood_group|default:"-" }}</dd><dt>Height</dt><dd>{% if p.height_cm %}{{ p.height_cm }} cm{% else %}-{% endif %}</dd><dt>Weight</dt><dd>{% if p.weight_kg %}{{ p.weight_kg }} kg{% else %}-{% endif %}</dd><dt>Address</dt><dd>{{ p.address|default:"-" }}</dd><dt>Username</dt><dd>{{ p.user.username }}</dd></dl></div>
+    {% if is_main_admin %}<form method="post" action="{% url 'admin-patient-delete' p.pk %}">{% csrf_token %}<button class="btn danger" data-confirm="Delete this patient and all their records?">{% icon 'trash' %} Delete patient</button></form>{% endif %}
+  </div>
+</div>
+{% endblock %}

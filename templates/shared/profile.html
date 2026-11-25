@@ -1,0 +1,25 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}My Profile{% endblock %}
+{% block actions %}<a class="btn" href="{% url 'password' %}">{% icon 'key' %} Change password</a>{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="grid g-main">{% csrf_token %}
+  <div class="card">
+    <h3>Details</h3>
+    <div class="form-grid mt">
+      {% for f in user_form %}{% include "partials/field.html" with field=f %}{% endfor %}
+      {% for f in prof_form %}{% if f.name != 'photo' %}{% include "partials/field.html" with field=f %}{% endif %}{% endfor %}
+    </div>
+    {% if role == 'doctor' %}
+    <h3 class="mt">Qualification (set at registration)</h3>
+    <dl class="kv mt-s"><dt>Specialization</dt><dd>{{ obj.specialization }}</dd><dt>Degree</dt><dd>{{ obj.qualification }}</dd><dt>University</dt><dd>{{ obj.university }} ({{ obj.passing_year }})</dd><dt>Registration No.</dt><dd>{{ obj.license_no }}</dd></dl>
+    {% endif %}
+    <button class="btn primary mt" type="submit">Save changes</button>
+  </div>
+  <div class="card center" style="align-self:start">
+    <h3>Profile photo</h3>
+    <div class="mt" id="photoPreview" style="display:inline-block">{% avatar obj "xl" %}</div>
+    <div class="mt">{% with f=prof_form.photo %}{{ f }}{% for e in f.errors %}<div class="errors">{{ e }}</div>{% endfor %}{% endwith %}</div>
+    <p class="help mt-s">{% if role == 'doctor' %}Your photo is shown on your panel and on the hospital website.{% else %}Your photo appears on your panel.{% endif %}</p>
+  </div>
+</form>
+{% endblock %}

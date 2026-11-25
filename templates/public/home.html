@@ -1,0 +1,63 @@
+{% extends "public/base.html" %}{% load ui %}
+{% block body %}
+<section class="hero"><div class="in">
+  <div>
+    <span class="eyebrow">{% icon 'activity' 16 %} Digital hospital care</span>
+    <h1>Your health, in <em>trusted hands</em></h1>
+    <p class="lead">Book a check-up with verified doctors, get a clear digital prescription, and keep all your medical records safe in one place at Muzammil's Hospital.</p>
+    <div class="cta">
+      <a class="btn primary lg" href="{% url 'register-patient' %}">{% icon 'user' %} Register as Patient</a>
+      <a class="btn lg" href="{% url 'register-doctor' %}">{% icon 'stethoscope' %} Join as Doctor</a>
+      <a class="btn ghost lg" href="{% url 'login' %}">Sign in {% icon 'arrow' 16 %}</a>
+    </div>
+  </div>
+  <div class="hero-card">
+    <h3>Muzammil's Hospital at a glance</h3>
+    <div class="hero-stats mt-s">
+      <div><b>{{ stats.doctors }}</b><span>Verified doctors</span></div>
+      <div><b>{{ stats.patients }}</b><span>Registered patients</span></div>
+      <div><b>{{ stats.checkups }}</b><span>Check-ups done</span></div>
+    </div>
+    <div class="mini"><span class="stat"><span class="ico">{% icon 'award' 22 %}</span></span><div><b>Every doctor is verified</b><div class="small muted">Degree and university checked by admin before approval.</div></div></div>
+    <div class="mini"><span class="stat"><span class="ico blue">{% icon 'file' 22 %}</span></span><div><b>Digital prescriptions</b><div class="small muted">Medicines, advice and referrals with the doctor's stamp.</div></div></div>
+  </div>
+</div></section>
+
+<section class="sec" id="services">
+  <h2>Everything in one place</h2>
+  <p class="sub">A simple digital flow for patients, doctors and the front desk.</p>
+  <div class="grid g3">
+    <div class="card feature"><div class="ico">{% icon 'calendar' 24 %}</div><h3>Easy appointments</h3><p class="muted">Pick a doctor and a date. The doctor sees you in the queue.</p></div>
+    <div class="card feature"><div class="ico">{% icon 'clipboard' 24 %}</div><h3>Digital check-up form</h3><p class="muted">Problems, vitals, diagnosis, medicines and referral written digitally.</p></div>
+    <div class="card feature"><div class="ico">{% icon 'printer' 24 %}</div><h3>Stamped print-out</h3><p class="muted">The front desk prints your prescription with the doctor's stamp and receipt.</p></div>
+    <div class="card feature"><div class="ico">{% icon 'archive' 24 %}</div><h3>Records kept safe</h3><p class="muted">Every paid check-up is stored and available to you any time.</p></div>
+    <div class="card feature"><div class="ico">{% icon 'award' 24 %}</div><h3>Verified doctors</h3><p class="muted">Degree, university and registration number reviewed before approval.</p></div>
+    <div class="card feature"><div class="ico">{% icon 'shield' 24 %}</div><h3>Private accounts</h3><p class="muted">Separate secure logins for admin, doctors and patients.</p></div>
+  </div>
+</section>
+
+<section class="sec" id="doctors" style="padding-top:20px">
+  <h2>Our doctors</h2>
+  <p class="sub">Approved and verified specialists at Muzammil's Hospital.</p>
+  {% if doctors %}
+  <div class="grid g4">
+    {% for d in doctors %}
+    <div class="card doc-card">{% avatar d "xl" %}<h3>{{ d.display_name }}</h3><div class="muted small">{{ d.specialization }}</div><div class="small mt-s">{{ d.qualification }}</div><div class="muted small">{{ d.experience_years }} yrs experience</div></div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card empty">{% icon 'stethoscope' 40 %}<div>Doctors will appear here once the admin approves them.</div></div>
+  {% endif %}
+</section>
+
+<section class="sec" id="how" style="padding-top:20px">
+  <h2>How it works</h2>
+  <p class="sub">From registration to your digital record in four steps.</p>
+  <div class="grid g4 steps" style="margin-top:20px">
+    <div class="card"><h3>Register</h3><p class="muted small mt-s">Create your patient account in a minute.</p></div>
+    <div class="card"><h3>Visit the doctor</h3><p class="muted small mt-s">The doctor records your problem, vitals and medicines digitally.</p></div>
+    <div class="card"><h3>Pay at the desk</h3><p class="muted small mt-s">Admin prints your stamped prescription and takes the checking charges.</p></div>
+    <div class="card"><h3>Keep your record</h3><p class="muted small mt-s">Your paid check-up is saved in your account forever.</p></div>
+  </div>
+</section>
+{% endblock %}

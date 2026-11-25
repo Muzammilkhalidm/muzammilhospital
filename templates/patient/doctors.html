@@ -1,0 +1,11 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}Our Doctors{% endblock %}
+{% block actions %}<form class="searchbar" method="get"><input class="input" name="q" value="{{ q }}" placeholder="Name or specialization"><button class="btn">{% icon 'search' %}</button></form>{% endblock %}
+{% block content %}
+<div class="grid g3">
+{% for d in doctors %}<div class="card"><div class="row">{% avatar d "lg" %}<div><h3>{{ d.display_name }}</h3><div class="muted">{{ d.specialization }}</div></div></div>
+<p class="small mt">{{ d.qualification }}<br><span class="muted">{{ d.university }} &middot; {{ d.experience_years }} yrs experience</span></p>
+<div class="row between mt"><span class="badge info">Fee {{ d.consultation_fee|money }}</span><a class="btn sm primary" href="{% url 'patient-book' %}?doctor={{ d.pk }}">Book</a></div></div>
+{% empty %}<div class="card empty" style="grid-column:1/-1">{% icon 'stethoscope' 44 %}<div>No doctors found.</div></div>{% endfor %}
+</div>
+{% endblock %}

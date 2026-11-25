@@ -1,0 +1,16 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}Doctors{% endblock %}
+{% block actions %}<form class="searchbar" method="get"><input class="input" name="q" value="{{ q }}" placeholder="Search name or specialization"><button class="btn">{% icon 'search' %}</button></form>{% endblock %}
+{% block content %}
+<div class="card flush">
+{% if doctors %}
+<div class="table-wrap"><table class="t"><thead><tr><th>Doctor</th><th>Degree &amp; University</th><th>Charges</th><th>Doctor share</th><th>Patients</th><th></th></tr></thead><tbody>
+{% for d in doctors %}<tr>
+  <td><div class="who">{% avatar d "md" %}<div><b>{{ d.display_name }}</b><small>{{ d.specialization }}</small></div></div></td>
+  <td>{{ d.qualification }}<br><small class="muted">{{ d.university }} ({{ d.passing_year }})</small></td>
+  <td>{{ d.consultation_fee|money }}</td><td><span class="badge info">{{ d.share_percent }}%</span></td><td>{{ d.patients_seen }}</td>
+  <td class="right"><a class="btn sm" href="{% url 'admin-doctor-detail' d.pk %}">Open</a></td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<div class="empty">{% icon 'stethoscope' 44 %}<div>No approved doctors yet. Review <a href="{% url 'admin-doctor-requests' %}">doctor requests</a>.</div></div>{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}Hello, {{ user.first_name|default:user.username }}{% endblock %}
+{% block subheading %}<div class="sub">Patient ID: {{ user.patient.code }}</div>{% endblock %}
+{% block actions %}<a class="btn primary" href="{% url 'patient-book' %}">{% icon 'plus' %} Book appointment</a>{% endblock %}
+{% block content %}
+<div class="grid g3">
+  <div class="card stat"><span class="ico">{% icon 'calendar' 24 %}</span><div><b>{{ upcoming|length }}</b><span>Upcoming appointments</span></div></div>
+  <a class="card stat" href="{% url 'patient-records' %}"><span class="ico green">{% icon 'file' 24 %}</span><div><b>{{ record_count }}</b><span>Saved records</span></div></a>
+  <div class="card stat"><span class="ico amber">{% icon 'clock' 24 %}</span><div><b>{{ waiting }}</b><span>Waiting at payment desk</span></div></div>
+</div>
+<div class="grid g2 mt">
+  <div class="card flush"><div class="card-head"><h3>Upcoming appointments</h3><a class="btn sm" href="{% url 'patient-appointments' %}">All</a></div>
+    {% if upcoming %}<div class="table-wrap"><table class="t"><tbody>{% for a in upcoming %}<tr><td><b>{{ a.date|date:"d M Y" }}</b></td><td>{{ a.doctor.display_name }}<br><small class="muted">{{ a.doctor.specialization }}</small></td></tr>{% endfor %}</tbody></table></div>
+    {% else %}<div class="empty">{% icon 'calendar' 40 %}<div>No upcoming appointments.<br><a href="{% url 'patient-book' %}">Book one now</a></div></div>{% endif %}</div>
+  <div class="card flush"><div class="card-head"><h3>Recent records</h3><a class="btn sm" href="{% url 'patient-records' %}">All</a></div>
+    {% if records %}<div class="table-wrap"><table class="t"><tbody>{% for v in records %}<tr><td><b>{{ v.created_at|date:"d M Y" }}</b><br><small class="muted">{{ v.code }}</small></td><td>{{ v.doctor.display_name }}</td><td class="right"><a class="btn sm" href="{% url 'visit-detail' v.pk %}">Open</a></td></tr>{% endfor %}</tbody></table></div>
+    {% else %}<div class="empty">{% icon 'file' 40 %}<div>Your prescriptions will appear here after your check-up is paid.</div></div>{% endif %}</div>
+</div>
+<div class="card mt"><div class="row between"><h3>Our doctors</h3><a class="btn sm" href="{% url 'patient-doctors' %}">See all</a></div>
+  <div class="grid g3 mt">{% for d in doctors %}<div class="row" style="padding:10px;border:1px solid var(--line);border-radius:12px">{% avatar d "md" %}<div class="grow"><b>{{ d.display_name }}</b><div class="muted small">{{ d.specialization }}</div></div><a class="btn sm" href="{% url 'patient-book' %}?doctor={{ d.pk }}">Book</a></div>{% empty %}<p class="muted">No doctors available yet.</p>{% endfor %}</div></div>
+{% endblock %}

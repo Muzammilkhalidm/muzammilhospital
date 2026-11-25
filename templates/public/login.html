@@ -1,0 +1,31 @@
+{% load static ui %}<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in | {{ HOSPITAL_NAME }}</title><link rel="stylesheet" href="{% static 'css/app.css' %}"><link rel="icon" href="{% static 'img/favicon.svg' %}"></head>
+<body>{% include "partials/messages.html" %}
+<div class="auth">
+  <div class="auth-side">
+    <a class="brand" href="{% url 'home' %}" style="padding:0"><span class="logo">{% icon 'cross' 22 %}</span><span><b>Muzammil's Hospital</b><small>CARING FOR YOU</small></span></a>
+    <div>
+      <h2>Welcome back to Muzammil's Hospital</h2>
+      <p>One sign-in for admin, doctors and patients. You will be taken to your own panel automatically.</p>
+      <ul><li>{% icon 'check' %} Digital check-up forms and prescriptions</li><li>{% icon 'check' %} Verified doctors only</li><li>{% icon 'check' %} Your records, always available</li></ul>
+    </div>
+    <div class="small" style="color:#8fd5cc">&copy; {% now "Y" %} {{ HOSPITAL_NAME }}</div>
+  </div>
+  <div class="auth-main"><div class="auth-box">
+    <h1>Sign in</h1><p class="muted">Enter your username and password.</p>
+    <form method="post" class="mt" style="display:grid;gap:16px">{% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert-form">Wrong username or password. Please try again.</div>{% endif %}
+      <div class="field"><label>Username</label>{{ form.username }}</div>
+      <div class="field"><label>Password</label>{{ form.password }}</div>
+      <input type="hidden" name="next" value="{{ next }}">
+      <button class="btn primary lg block" type="submit">Sign in</button>
+    </form>
+    <div class="role-pick">
+      <a href="{% url 'register-patient' %}">{% icon 'user' %}<br>New patient? Register</a>
+      <a href="{% url 'register-doctor' %}">{% icon 'stethoscope' %}<br>Doctor? Apply here</a>
+    </div>
+    <p class="center small"><a href="{% url 'home' %}">&larr; Back to website</a></p>
+  </div></div>
+</div>
+<script src="{% static 'js/app.js' %}"></script></body></html>

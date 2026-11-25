@@ -1,0 +1,33 @@
+{% load static ui %}<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patient registration | {{ HOSPITAL_NAME }}</title><link rel="stylesheet" href="{% static 'css/app.css' %}"><link rel="icon" href="{% static 'img/favicon.svg' %}"></head>
+<body>{% include "partials/messages.html" %}
+<div class="auth auth-wide">
+  <div class="auth-side">
+    <a class="brand" href="{% url 'home' %}" style="padding:0"><span class="logo">{% icon 'cross' 22 %}</span><span><b>Muzammil's Hospital</b><small>CARING FOR YOU</small></span></a>
+    <div><h2>Create your patient account</h2><p>Book appointments, see your prescriptions and keep your medical history in one place.</p>
+      <ul><li>{% icon 'check' %} Free registration</li><li>{% icon 'check' %} Instant access</li><li>{% icon 'check' %} Records saved after every paid check-up</li></ul></div>
+    <div class="small" style="color:#8fd5cc">Already registered? <a href="{% url 'login' %}" style="color:#fff;text-decoration:underline">Sign in</a></div>
+  </div>
+  <div class="auth-main"><div class="auth-box wide">
+    <h1>Patient registration</h1><p class="muted mb">Fields marked <span style="color:var(--bad)">*</span> are required.</p>
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert-form">{{ form.non_field_errors }}</div>{% endif %}
+      <div class="form-grid">
+        <div class="form-section full">Account</div>
+        {% include "partials/field.html" with field=form.first_name %}{% include "partials/field.html" with field=form.last_name %}
+        {% include "partials/field.html" with field=form.username %}{% include "partials/field.html" with field=form.email %}
+        {% include "partials/field.html" with field=form.password %}{% include "partials/field.html" with field=form.confirm_password %}
+        <div class="form-section full">Personal details</div>
+        {% include "partials/field.html" with field=form.phone %}{% include "partials/field.html" with field=form.gender %}
+        {% include "partials/field.html" with field=form.date_of_birth %}{% include "partials/field.html" with field=form.blood_group %}
+        {% include "partials/field.html" with field=form.height_cm %}{% include "partials/field.html" with field=form.weight_kg %}
+        <div class="full">{% include "partials/field.html" with field=form.address %}</div>
+        <div class="full">{% include "partials/field.html" with field=form.photo %}</div>
+      </div>
+      <button class="btn primary lg block mt" type="submit">Create account</button>
+    </form>
+    <p class="center small mt"><a href="{% url 'home' %}">&larr; Back to website</a></p>
+  </div></div>
+</div>
+<script src="{% static 'js/app.js' %}"></script></body></html>

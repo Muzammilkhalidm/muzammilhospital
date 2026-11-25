@@ -1,0 +1,106 @@
+{% load static ui %}<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>{{ visit.code }} - {{ visit.patient_name }} | {{ HOSPITAL_NAME }}</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#e9edf1;font-family:"Segoe UI",Arial,sans-serif;color:#000;font-size:13.5px;line-height:1.45}
+.bar{max-width:210mm;margin:14px auto 0;display:flex;gap:10px;justify-content:space-between;align-items:center;padding:0 4px}
+.bar a,.bar button{font:600 14px "Segoe UI",Arial;padding:9px 16px;border-radius:8px;border:1px solid #000;background:#fff;color:#000;cursor:pointer;text-decoration:none}
+.bar button{background:#000;color:#fff}
+.page{width:210mm;min-height:297mm;margin:14px auto;background:#fff;padding:14mm 15mm;box-shadow:0 4px 24px rgba(0,0,0,.15);position:relative;display:flex;flex-direction:column}
+.head{display:flex;align-items:center;gap:14px;border-bottom:3px double #000;padding-bottom:10px}
+.logo{width:54px;height:54px;border:2.5px solid #000;border-radius:12px;display:grid;place-items:center}
+.head h1{margin:0;font-size:27px;letter-spacing:.5px}
+.head p{margin:2px 0 0;font-size:12px}
+.head .meta{margin-left:auto;text-align:right;font-size:12px}
+.title{text-align:center;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin:12px 0 10px;font-size:14px}
+table{border-collapse:collapse;width:100%}
+.info td{border:1px solid #000;padding:6px 9px;width:25%}
+.info td b{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+h3{margin:14px 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:1.2px;border-bottom:1px solid #000;padding-bottom:3px}
+ul{margin:4px 0 0;padding-left:20px}li{margin:2px 0}
+.rx th,.rx td{border:1px solid #000;padding:6px 8px;text-align:left;font-size:13px}
+.rx th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;background:#f0f0f0}
+.refer{border:1.5px solid #000;padding:8px 12px;margin-top:6px}
+.grow{flex:1}
+.foot{display:flex;justify-content:space-between;align-items:flex-end;margin-top:26px;gap:20px}
+.fee{border:1.5px solid #000;padding:10px 14px;min-width:230px}
+.fee div{display:flex;justify-content:space-between;gap:20px;padding:2px 0}
+.fee .tot{border-top:1px solid #000;margin-top:4px;padding-top:5px;font-weight:700;font-size:15px}
+.stamp-wrap{text-align:center;width:300px}
+.stamp{display:inline-block;border:3px double #000;border-radius:14px;padding:9px 16px 8px;transform:rotate(-2.5deg);text-align:center;min-width:250px;position:relative}
+.stamp::before{content:"";position:absolute;inset:3px;border:1px solid #000;border-radius:10px;pointer-events:none}
+.stamp .h{font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700}
+.stamp .n{font-size:18px;font-weight:800;margin:2px 0;letter-spacing:.3px}
+.stamp .q{font-size:12px;font-weight:600}
+.stamp .s{font-size:11.5px}
+.stamp .r{font-size:10.5px;margin-top:2px;letter-spacing:.4px}
+.sign{border-top:1px solid #000;margin-top:10px;padding-top:3px;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+.paid-tag{position:absolute;right:20mm;top:98mm;border:3px solid #000;padding:2px 14px;font-weight:800;letter-spacing:4px;transform:rotate(12deg);font-size:20px;opacity:.75}
+.small{font-size:11px}
+.note{text-align:center;font-size:11px;margin-top:12px;border-top:1px dashed #000;padding-top:6px}
+@page{size:A4;margin:0}
+@media print{body{background:#fff}.bar{display:none}.page{margin:0;box-shadow:none;width:100%;min-height:100vh}}
+</style></head>
+<body class="print-page">
+{% if not standalone %}
+<div class="bar"><a href="{% url 'visit-detail' visit.pk %}">&larr; Back</a><button onclick="window.print()">Print</button></div>
+{% endif %}
+<div class="page">
+  <div class="head">
+    <div class="logo"><svg width="32" height="32" viewBox="0 0 24 24"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="#000"/></svg></div>
+    <div><h1>{{ HOSPITAL_NAME }}</h1><p>Medical Check-up &amp; Prescription</p></div>
+    <div class="meta"><b>{{ visit.code }}</b><br>{{ visit.created_at|date:"d M Y, h:i A" }}{% if visit.receipt_no %}<br>Receipt: {{ visit.receipt_no }}{% endif %}</div>
+  </div>
+  {% if visit.status == 'paid' and show_fee %}<div class="paid-tag">PAID</div>{% endif %}
+
+  <div class="title">Patient Check-up Form</div>
+  <table class="info">
+    <tr><td colspan="2"><b>Patient name</b>{{ visit.patient_name }}</td><td><b>Patient ID</b>{{ visit.patient.code }}</td><td><b>Date</b>{{ visit.created_at|date:"d M Y" }}</td></tr>
+    <tr><td><b>Age</b>{{ visit.age|default_if_none:"-" }}{% if visit.age %} yrs{% endif %}</td><td><b>Gender</b>{{ visit.gender|default:"-" }}</td><td><b>Height</b>{% if visit.height_cm %}{{ visit.height_cm }} cm{% else %}-{% endif %}</td><td><b>Weight</b>{% if visit.weight_kg %}{{ visit.weight_kg }} kg{% else %}-{% endif %}</td></tr>
+    <tr><td><b>Blood pressure</b>{{ visit.blood_pressure|default:"-" }}</td><td><b>Temperature</b>{% if visit.temperature %}{{ visit.temperature }} &deg;F{% else %}-{% endif %}</td><td><b>Pulse</b>{% if visit.pulse %}{{ visit.pulse }} bpm{% else %}-{% endif %}</td><td><b>Doctor</b>{{ visit.doctor.display_name }}</td></tr>
+  </table>
+
+  <h3>Problems / Complaints</h3>
+  <ul>{% for p in visit.problem_list %}<li>{{ p }}</li>{% empty %}<li>-</li>{% endfor %}</ul>
+
+  {% if visit.diagnosis_list %}<h3>Diagnosis</h3><ul>{% for p in visit.diagnosis_list %}<li>{{ p }}</li>{% endfor %}</ul>{% endif %}
+
+  <h3>Prescription (Rx)</h3>
+  {% if visit.items.all %}
+  <table class="rx"><thead><tr><th style="width:30px">#</th><th>Medicine</th><th>Dose</th><th>Frequency</th><th>Duration</th><th>Instructions</th></tr></thead><tbody>
+  {% for i in visit.items.all %}<tr><td>{{ forloop.counter }}</td><td><b>{{ i.medicine }}</b></td><td>{{ i.dose }}</td><td>{{ i.frequency }}</td><td>{{ i.duration }}</td><td>{{ i.instructions }}</td></tr>{% endfor %}
+  </tbody></table>
+  {% else %}<p class="small">No medicines prescribed.</p>{% endif %}
+
+  {% if visit.test_list %}<h3>Tests advised</h3><ul>{% for p in visit.test_list %}<li>{{ p }}</li>{% endfor %}</ul>{% endif %}
+  {% if visit.advice_list %}<h3>Advice / Precautions</h3><ul>{% for p in visit.advice_list %}<li>{{ p }}</li>{% endfor %}</ul>{% endif %}
+  {% if visit.referral_to %}<h3>Referral</h3><div class="refer"><b>Referred to:</b> {{ visit.referral_to }}{% if visit.referral_notes %}<br><b>Reason:</b> {{ visit.referral_notes }}{% endif %}</div>{% endif %}
+  {% if visit.follow_up %}<p style="margin-top:10px"><b>Follow-up visit:</b> {{ visit.follow_up|date:"d M Y" }}</p>{% endif %}
+
+  <div class="grow"></div>
+  <div class="foot">
+    {% if show_fee %}
+    <div class="fee">
+      <div><span>Checking charges</span><span>{{ CURRENCY }} {{ visit.fee|default_if_none:visit.doctor.consultation_fee|floatformat:"0g" }}</span></div>
+      {% if visit.status == 'paid' %}<div><span>Method</span><span>{{ visit.payment_method }}</span></div><div class="tot"><span>Received</span><span>{{ CURRENCY }} {{ visit.fee|floatformat:"0g" }}</span></div>
+      <div class="small"><span>{{ visit.paid_at|date:"d M Y, h:i A" }}</span></div>
+      {% else %}<div class="tot"><span>Amount due</span><span>{{ CURRENCY }} {{ visit.fee|default_if_none:visit.doctor.consultation_fee|floatformat:"0g" }}</span></div>{% endif %}
+    </div>
+    {% else %}<div></div>{% endif %}
+    <div class="stamp-wrap">
+      <div class="stamp">
+        <div class="h">{{ HOSPITAL_NAME }}</div>
+        <div class="n">{{ visit.doctor.display_name }}</div>
+        <div class="q">{{ visit.doctor.qualification }}</div>
+        <div class="s">{{ visit.doctor.specialization }}</div>
+        <div class="s">{{ visit.doctor.university }}</div>
+        <div class="r">Reg. No: {{ visit.doctor.license_no }}</div>
+      </div>
+      <div class="sign">Doctor's signature &amp; stamp</div>
+    </div>
+  </div>
+  <div class="note">This is a computer-generated prescription from {{ HOSPITAL_NAME }}. Please follow the doctor's instructions and keep this record safe.</div>
+</div>
+<script>if(location.search.indexOf("auto=1")>-1){window.addEventListener("load",function(){setTimeout(function(){window.print()},400)})}</script>
+</body></html>

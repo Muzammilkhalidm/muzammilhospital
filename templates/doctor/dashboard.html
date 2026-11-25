@@ -1,0 +1,29 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}Welcome, {{ user.doctor.display_name }}{% endblock %}
+{% block subheading %}<div class="sub">{% now "l, d F Y" %}</div>{% endblock %}
+{% block actions %}<a class="btn primary" href="{% url 'doctor-queue' %}">{% icon 'stethoscope' %} Start a check-up</a>{% endblock %}
+{% block content %}
+<div class="grid g4">
+  <div class="card stat"><span class="ico">{% icon 'clipboard' 24 %}</span><div><b>{{ today_count }}</b><span>Check-ups today</span></div></div>
+  <div class="card stat"><span class="ico blue">{% icon 'users' 24 %}</span><div><b>{{ total_patients }}</b><span>Patients treated</span></div></div>
+  <div class="card stat"><span class="ico amber">{% icon 'clock' 24 %}</span><div><b>{{ awaiting }}</b><span>Awaiting payment</span></div></div>
+  <a class="card stat" href="{% url 'doctor-earnings' %}"><span class="ico green">{% icon 'wallet' 24 %}</span><div><b>{{ month_earned|money }}</b><span>My share this month</span></div></a>
+</div>
+<div class="grid g-main mt">
+  <div class="card flush">
+    <div class="card-head"><h3>Patient queue</h3><a class="btn sm" href="{% url 'doctor-queue' %}">All</a></div>
+    {% if queue %}<div class="table-wrap"><table class="t"><tbody>{% for a in queue %}<tr>
+      <td><div class="who">{% avatar a.patient "sm" %}<div><b>{{ a.patient.full_name }}</b><small>{{ a.date|date:"d M" }} &middot; {{ a.problem|truncatechars:50 }}</small></div></div></td>
+      <td class="right"><form method="post" action="{% url 'doctor-start' a.pk %}" class="inline">{% csrf_token %}<button class="btn sm primary">Start check-up</button></form></td></tr>{% endfor %}</tbody></table></div>
+    {% else %}<div class="empty">{% icon 'calendar' 40 %}<div>No patients in your queue.</div></div>{% endif %}
+  </div>
+  <div class="grid" style="align-content:start">
+    <div class="card"><h3>Drafts</h3>
+      {% for v in drafts %}<div class="row between mt-s"><span>{{ v.patient_name }}</span><a class="btn sm" href="{% url 'doctor-visit-edit' v.pk %}">Continue</a></div>{% empty %}<p class="muted small mt-s">No unfinished check-ups.</p>{% endfor %}</div>
+    <div class="card"><h3>Total earned</h3><b style="font-size:26px">{{ total_earned|money }}</b><p class="muted small">Your share ({{ user.doctor.share_percent }}%) of paid check-ups.</p></div>
+  </div>
+</div>
+<div class="card flush mt"><div class="card-head"><h3>Recent paid check-ups</h3><a class="btn sm" href="{% url 'doctor-earnings' %}">Earnings</a></div>
+{% if recent %}<div class="table-wrap"><table class="t"><tbody>{% for v in recent %}<tr><td><b>{{ v.patient_name }}</b></td><td class="muted small">{{ v.paid_at|date:"d M Y, h:i A" }}</td><td>{{ v.fee|money }}</td><td><span class="badge ok">+ {{ v.doctor_amount|money }}</span></td><td class="right"><a class="btn sm" href="{% url 'visit-detail' v.pk %}">View</a></td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="empty">Paid check-ups will show here.</div>{% endif %}</div>
+{% endblock %}

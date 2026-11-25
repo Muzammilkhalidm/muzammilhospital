@@ -1,0 +1,15 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}Patients{% endblock %}
+{% block actions %}<form class="searchbar" method="get"><input class="input" name="q" value="{{ q }}" placeholder="Search name or phone"><button class="btn">{% icon 'search' %}</button></form>{% endblock %}
+{% block content %}
+<div class="card flush">
+{% if patients %}
+<div class="table-wrap"><table class="t"><thead><tr><th>Patient</th><th>Phone</th><th>Age / Gender</th><th>Check-ups</th><th>Registered</th><th></th></tr></thead><tbody>
+{% for p in patients %}<tr>
+  <td><div class="who">{% avatar p "sm" %}<div><b>{{ p.full_name }}</b><small>{{ p.code }}</small></div></div></td>
+  <td>{{ p.phone }}</td><td>{{ p.age|default_if_none:"-" }} / {{ p.gender }}</td><td>{{ p.n }}</td><td class="muted small">{{ p.created_at|date:"d M Y" }}</td>
+  <td class="right"><a class="btn sm" href="{% url 'admin-patient-detail' p.pk %}">Open</a></td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<div class="empty">{% icon 'users' 44 %}<div>No patients found.</div></div>{% endif %}
+</div>
+{% endblock %}

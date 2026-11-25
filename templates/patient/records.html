@@ -1,0 +1,11 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}My Records{% endblock %}
+{% block subheading %}<div class="sub">Your prescription is available here once the check-up is paid at the admin desk.</div>{% endblock %}
+{% block content %}
+<div class="card flush">
+{% if visits %}<div class="table-wrap"><table class="t"><thead><tr><th>Date</th><th>Doctor</th><th>Main problem</th><th>Status</th><th></th></tr></thead><tbody>
+{% for v in visits %}<tr><td><b>{{ v.created_at|date:"d M Y" }}</b><br><small class="muted">{{ v.code }}</small></td><td>{{ v.doctor.display_name }}<br><small class="muted">{{ v.doctor.specialization }}</small></td><td>{{ v.problem_list|first|default:"-"|truncatechars:50 }}</td><td>{% include "partials/status_badge.html" %}</td>
+<td class="right nowrap">{% if v.status == 'paid' %}<a class="btn sm" href="{% url 'visit-detail' v.pk %}">View</a> <a class="btn sm" href="{% url 'visit-print' v.pk %}" target="_blank">{% icon 'printer' 14 %} Print</a>{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="empty">{% icon 'file' 44 %}<div>No records yet.</div></div>{% endif %}
+</div>
+{% endblock %}

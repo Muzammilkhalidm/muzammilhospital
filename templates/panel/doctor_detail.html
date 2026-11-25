@@ -1,0 +1,37 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}{{ doc.display_name }}{% endblock %}
+{% block actions %}<a class="btn" href="{% url 'admin-doctors' %}">&larr; All doctors</a>{% endblock %}
+{% block content %}
+<div class="grid g-main">
+  <div class="grid">
+    <div class="card">
+      <div class="row">{% avatar doc "xl" %}<div><h2>{{ doc.display_name }}</h2><div class="muted">{{ doc.specialization }}</div>
+        <div class="mt-s">{% if doc.status == 'approved' %}<span class="badge ok">Approved</span>{% elif doc.status == 'pending' %}<span class="badge warn">Pending</span>{% else %}<span class="badge bad">Rejected / inactive</span>{% endif %}</div></div></div>
+      <div class="grid g2 mt">
+        <dl class="kv"><dt>Degree(s)</dt><dd>{{ doc.qualification }}</dd><dt>University</dt><dd>{{ doc.university }}</dd><dt>Graduation</dt><dd>{{ doc.passing_year }}</dd><dt>Experience</dt><dd>{{ doc.experience_years }} years</dd><dt>Reg. No.</dt><dd>{{ doc.license_no }}</dd></dl>
+        <dl class="kv"><dt>Phone</dt><dd>{{ doc.phone }}</dd><dt>Email</dt><dd>{{ doc.user.email|default:"-" }}</dd><dt>Username</dt><dd>{{ doc.user.username }}</dd><dt>Certificate</dt><dd>{% if doc.certificate %}<a href="{{ doc.certificate.url }}" target="_blank">Open file</a>{% else %}-{% endif %}</dd></dl>
+      </div>
+      {% if doc.status == 'rejected' and doc.rejection_reason %}<div class="note bad mt">{{ doc.rejection_reason }}</div>{% endif %}
+      {% if doc.status != 'approved' %}<form method="post" action="{% url 'approve-doctor' doc.pk %}" class="mt">{% csrf_token %}<input type="hidden" name="next" value="admin-doctor-detail">
+        <button class="btn ok">{% icon 'check' %} Approve doctor</button></form>{% endif %}
+    </div>
+    <div class="card flush">
+      <div class="card-head"><h3>Recent paid check-ups</h3></div>
+      {% if recent %}<div class="table-wrap"><table class="t"><tbody>{% for v in recent %}<tr><td><b>{{ v.patient_name }}</b></td><td>{{ v.paid_at|date:"d M Y" }}</td><td>{{ v.fee|money }}</td><td>{{ v.doctor_amount|money }} <small class="muted">({{ v.doctor_percent }}%)</small></td><td class="right"><a class="btn sm" href="{% url 'visit-detail' v.pk %}">View</a></td></tr>{% endfor %}</tbody></table></div>
+      {% else %}<div class="empty">No paid check-ups yet.</div>{% endif %}
+    </div>
+  </div>
+  <div class="grid" style="align-content:start">
+    <div class="card"><h3>Earnings</h3>
+      <div class="chips mt-s"><div class="chip"><b>Patients treated</b>{{ total_patients }}</div><div class="chip"><b>Doctor total share</b>{{ total_earned|money }}</div></div></div>
+    <div class="card"><h3>Charges &amp; share</h3>
+      <p class="muted small mt-s">Set the default checking charges and the percentage of each payment that goes to this doctor.</p>
+      <form method="post" class="mt" style="display:grid;gap:14px">{% csrf_token %}
+        {% for field in form %}{% include "partials/field.html" %}{% endfor %}
+        <button class="btn primary" type="submit" {% if not is_main_admin %}disabled title="Main admin only"{% endif %}>Save terms</button>
+      </form></div>
+    {% if is_main_admin %}<div class="card"><h3>Danger zone</h3>
+      <form method="post" action="{% url 'admin-doctor-delete' doc.pk %}" class="mt-s">{% csrf_token %}<button class="btn danger" data-confirm="Remove this doctor? If they have records they will only be deactivated.">{% icon 'trash' %} Remove doctor</button></form></div>{% endif %}
+  </div>
+</div>
+{% endblock %}

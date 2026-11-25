@@ -1,0 +1,18 @@
+{% load static ui %}<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account status | {{ HOSPITAL_NAME }}</title><link rel="stylesheet" href="{% static 'css/app.css' %}"><link rel="icon" href="{% static 'img/favicon.svg' %}"></head>
+<body>{% include "partials/messages.html" %}
+<div class="card status-box">
+  {% if doctor.status == 'pending' %}
+    <div class="big" style="background:var(--warn-bg);color:var(--warn)">{% icon 'clock' 36 %}</div>
+    <h2>Waiting for admin approval</h2>
+    <p class="muted mt-s">Thank you, {{ doctor.display_name }}. The admin is reviewing your degree ({{ doctor.qualification }}) from {{ doctor.university }}. You will be able to use your panel as soon as you are approved.</p>
+  {% else %}
+    <div class="big" style="background:var(--bad-bg);color:var(--bad)">{% icon 'x' 36 %}</div>
+    <h2>Application not approved</h2>
+    <p class="muted mt-s">Reason: {{ doctor.rejection_reason|default:"Not specified" }}</p>
+    <p class="muted small mt-s">Please contact the hospital admin if you think this is a mistake.</p>
+  {% endif %}
+  <div class="row mt" style="justify-content:center"><a class="btn" href="{% url 'logout' %}">{% icon 'logout' %} Sign out</a><a class="btn primary" href="{% url 'doctor-status' %}">Refresh</a></div>
+</div>
+<script src="{% static 'js/app.js' %}"></script></body></html>

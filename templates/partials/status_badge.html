@@ -1,0 +1,3 @@
+{% if visit.status == 'paid' %}<span class="badge ok">{% load ui %}{% icon 'check' 12 %} Paid</span>
+{% elif visit.status == 'submitted' %}<span class="badge warn">Awaiting payment</span>
+{% else %}<span class="badge gray">With doctor</span>{% endif %}

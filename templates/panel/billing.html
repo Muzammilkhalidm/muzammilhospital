@@ -1,0 +1,25 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}Billing &amp; Print{% endblock %}
+{% block subheading %}<div class="sub">Open a check-up, receive the charges and print the stamped form.</div>{% endblock %}
+{% block actions %}<form class="searchbar" method="get"><input type="hidden" name="tab" value="{{ tab }}"><input class="input" name="q" value="{{ q }}" placeholder="Patient name or receipt"><button class="btn">{% icon 'search' %}</button></form>{% endblock %}
+{% block content %}
+<div class="tabs">
+  <a class="{% if tab == 'awaiting' %}on{% endif %}" href="?tab=awaiting">Awaiting payment<span class="n">{{ counts.awaiting }}</span></a>
+  <a class="{% if tab == 'paid' %}on{% endif %}" href="?tab=paid">Paid<span class="n">{{ counts.paid }}</span></a>
+  <a class="{% if tab == 'doctor' %}on{% endif %}" href="?tab=doctor">With doctor<span class="n">{{ counts.doctor }}</span></a>
+</div>
+<div class="card flush">
+{% if visits %}
+<div class="table-wrap"><table class="t"><thead><tr><th>Patient</th><th>Doctor</th><th>{% if tab == 'paid' %}Paid{% else %}Date{% endif %}</th><th>{% if tab == 'paid' %}Receipt{% else %}Status{% endif %}</th><th>Charges</th><th></th></tr></thead><tbody>
+{% for v in visits %}<tr>
+  <td><div class="who">{% avatar v.patient "sm" %}<div><b>{{ v.patient_name }}</b><small>{{ v.code }}</small></div></div></td>
+  <td>{{ v.doctor.display_name }}</td>
+  <td class="small">{% if tab == 'paid' %}{{ v.paid_at|date:"d M Y, h:i A" }}{% else %}{{ v.created_at|date:"d M Y, h:i A" }}{% endif %}</td>
+  <td>{% if tab == 'paid' %}{{ v.receipt_no }}{% else %}{% include "partials/status_badge.html" %}{% endif %}</td>
+  <td>{% if v.fee is not None %}<b>{{ v.fee|money }}</b>{% else %}<span class="muted">{{ v.doctor.consultation_fee|money }}</span>{% endif %}</td>
+  <td class="right nowrap">{% if v.status == 'submitted' %}<a class="btn sm ok" href="{% url 'visit-detail' v.pk %}">{% icon 'printer' 14 %} Collect &amp; print</a>
+   {% elif v.status == 'paid' %}<a class="btn sm" href="{% url 'visit-print' v.pk %}" target="_blank">{% icon 'printer' 14 %} Print</a> <a class="btn sm" href="{% url 'visit-detail' v.pk %}">View</a>{% endif %}</td>
+</tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="empty">{% icon 'file' 44 %}<div>Nothing here.</div></div>{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "app.html" %}{% load ui %}
+{% block title %}Check-up {{ visit.code }}{% endblock %}
+{% block heading %}Check-up {{ visit.code }}{% endblock %}
+{% block subheading %}<div class="sub">{{ visit.created_at|date:"d M Y, h:i A" }} &middot; {{ visit.doctor.display_name }}</div>{% endblock %}
+{% block actions %}
+  {% if role == 'doctor' and visit.status == 'draft' %}<a class="btn primary" href="{% url 'doctor-visit-edit' visit.pk %}">{% icon 'edit' %} Continue writing</a>{% endif %}
+  {% if role == 'admin' or role == 'patient' %}<a class="btn" href="{% url 'visit-print' visit.pk %}" target="_blank">{% icon 'printer' %} Print form</a>{% endif %}
+  {% if role == 'doctor' and visit.status != 'draft' %}<a class="btn" href="{% url 'visit-print' visit.pk %}" target="_blank">{% icon 'printer' %} Preview print</a>{% endif %}
+{% endblock %}
+{% block content %}
+<div class="grid g-main">
+  <div class="grid">
+    <div class="card">
+      <div class="row between"><div class="row">{% avatar visit.patient "lg" %}<div><h2>{{ visit.patient_name }}</h2><div class="muted">{{ visit.patient.code }} &middot; {{ visit.patient.phone }}</div></div></div>{% include "partials/status_badge.html" %}</div>
+      <div class="chips mt">
+        <div class="chip"><b>Age</b>{{ visit.age|default_if_none:"-" }}</div>
+        <div class="chip"><b>Gender</b>{{ visit.gender|default:"-" }}</div>
+        <div class="chip"><b>Height</b>{% if visit.height_cm %}{{ visit.height_cm }} cm{% else %}-{% endif %}</div>
+        <div class="chip"><b>Weight</b>{% if visit.weight_kg %}{{ visit.weight_kg }} kg{% else %}-{% endif %}</div>
+        <div class="chip"><b>BP</b>{{ visit.blood_pressure|default:"-" }}</div>
+        <div class="chip"><b>Temp</b>{% if visit.temperature %}{{ visit.temperature }} &deg;F{% else %}-{% endif %}</div>
+        <div class="chip"><b>Pulse</b>{{ visit.pulse|default:"-" }}</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Problems</h3><ul class="points">{% for p in visit.problem_list %}<li>{{ p }}</li>{% empty %}<li class="muted">Not written</li>{% endfor %}</ul>
+      {% if visit.diagnosis_list %}<h3 class="mt">Diagnosis</h3><ul class="points">{% for p in visit.diagnosis_list %}<li>{{ p }}</li>{% endfor %}</ul>{% endif %}
+      {% if visit.test_list %}<h3 class="mt">Tests advised</h3><ul class="points">{% for p in visit.test_list %}<li>{{ p }}</li>{% endfor %}</ul>{% endif %}
+      {% if visit.advice_list %}<h3 class="mt">Advice</h3><ul class="points">{% for p in visit.advice_list %}<li>{{ p }}</li>{% endfor %}</ul>{% endif %}
+    </div>
+    <div class="card flush">
+      <div class="card-head"><h3>{% icon 'pill' %} Medicines</h3></div>
+      {% if visit.items.all %}
+      <div class="table-wrap"><table class="t rx"><thead><tr><th>Medicine</th><th>Dose</th><th>Frequency</th><th>Duration</th><th>Instructions</th></tr></thead><tbody>
+      {% for i in visit.items.all %}<tr><td><b>{{ i.medicine }}</b></td><td>{{ i.dose }}</td><td>{{ i.frequency }}</td><td>{{ i.duration }}</td><td>{{ i.instructions }}</td></tr>{% endfor %}</tbody></table></div>
+      {% else %}<div class="empty">No medicines prescribed.</div>{% endif %}
+    </div>
+    {% if visit.referral_to or visit.follow_up %}
+    <div class="card">
+      {% if visit.referral_to %}<h3>Referral</h3><p class="mt-s"><b>{{ visit.referral_to }}</b>{% if visit.referral_notes %}<br><span class="muted">{{ visit.referral_notes }}</span>{% endif %}</p>{% endif %}
+      {% if visit.follow_up %}<p class="mt"><b>Follow-up:</b> {{ visit.follow_up|date:"d M Y" }}</p>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="grid" style="align-content:start">
+    {% if role == 'admin' and visit.status == 'submitted' %}
+    <div class="card" style="border-color:#f6dca0">
+      <h3>{% icon 'wallet' %} Collect payment</h3>
+      <p class="muted small mt-s">Enter the checking charges, receive payment, then the form prints with the doctor's stamp. A copy is saved to the patient's record.</p>
+      <form method="post" action="{% url 'collect-payment' visit.pk %}" class="mt" style="display:grid;gap:14px">{% csrf_token %}
+        <div class="field"><label>{{ pay_form.fee.label }}</label>{{ pay_form.fee }}</div>
+        <div class="field"><label>Payment method</label>{{ pay_form.payment_method }}</div>
+        <div class="note small">The doctor gets <b>{{ visit.doctor.share_percent }}%</b> of the charges. The rest goes to the hospital.</div>
+        <button class="btn ok lg block" type="submit">{% icon 'printer' %} Receive payment &amp; print</button>
+      </form>
+    </div>
+    {% elif visit.status == 'paid' %}
+    <div class="card">
+      <h3>Payment</h3>
+      <dl class="kv mt-s"><dt>Receipt</dt><dd>{{ visit.receipt_no }}</dd><dt>Charges</dt><dd>{{ visit.fee|money }}</dd><dt>Method</dt><dd>{{ visit.payment_method }}</dd><dt>Paid on</dt><dd>{{ visit.paid_at|date:"d M Y, h:i A" }}</dd>
+      {% if role != 'patient' %}<dt>Doctor share</dt><dd>{{ visit.doctor_amount|money }} ({{ visit.doctor_percent }}%)</dd>{% endif %}
+      {% if role == 'admin' %}<dt>Hospital share</dt><dd>{{ visit.hospital_amount|money }}</dd><dt>Received by</dt><dd>{{ visit.collected_by.get_full_name|default:visit.collected_by.username }}</dd>{% endif %}</dl>
+    </div>
+    {% elif visit.status == 'submitted' and role == 'doctor' %}
+    <div class="note warn">Sent to admin. Waiting for the patient to pay the checking charges. You will see your share in <a href="{% url 'doctor-earnings' %}">My Earnings</a> after payment.</div>
+    {% endif %}
+    <div class="card">
+      <h3>Doctor</h3>
+      <div class="row mt-s">{% avatar visit.doctor "md" %}<div><b>{{ visit.doctor.display_name }}</b><div class="muted small">{{ visit.doctor.specialization }}</div></div></div>
+      <p class="small mt-s">{{ visit.doctor.qualification }}<br>{{ visit.doctor.university }}</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

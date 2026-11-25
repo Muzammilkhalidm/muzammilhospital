@@ -1,0 +1,19 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}Admin Accounts{% endblock %}
+{% block subheading %}<div class="sub">Create extra admin panels, permanent or temporary, for front-desk staff.</div>{% endblock %}
+{% block actions %}<a class="btn primary" href="{% url 'admin-staff-add' %}">{% icon 'plus' %} New admin</a>{% endblock %}
+{% block content %}
+<div class="note mb small">Extra admins can book appointments, collect payments, print forms and view records. Only the main admin can approve doctors' terms, create admins, or delete users.</div>
+<div class="card flush">
+{% if staff %}<div class="table-wrap"><table class="t"><thead><tr><th>Admin</th><th>Type</th><th>Access ends</th><th>Status</th><th></th></tr></thead><tbody>
+{% for s in staff %}<tr>
+  <td><div class="who">{% avatar s "sm" %}<div><b>{{ s.full_name }}</b><small>@{{ s.user.username }}</small></div></div></td>
+  <td>{% if s.is_temporary %}<span class="badge warn">Temporary</span>{% else %}<span class="badge gray">Permanent</span>{% endif %}</td>
+  <td class="small">{% if s.expires_at %}{{ s.expires_at|date:"d M Y, h:i A" }}{% else %}-{% endif %}</td>
+  <td>{% if s.is_expired %}<span class="badge bad">Expired</span>{% elif s.is_active_admin %}<span class="badge ok">Active</span>{% else %}<span class="badge gray">Switched off</span>{% endif %}</td>
+  <td class="right nowrap">
+    <form method="post" action="{% url 'admin-staff-toggle' s.pk %}" class="inline">{% csrf_token %}<button class="btn sm">{% if s.is_active_admin %}Switch off{% else %}Switch on{% endif %}</button></form>
+    <form method="post" action="{% url 'admin-staff-delete' s.pk %}" class="inline">{% csrf_token %}<button class="btn sm danger" data-confirm="Delete this admin account?">{% icon 'trash' 14 %}</button></form></td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="empty">{% icon 'shield' 44 %}<div>No extra admins yet.</div></div>{% endif %}
+</div>
+{% endblock %}

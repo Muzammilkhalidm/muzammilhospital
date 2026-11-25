@@ -1,0 +1,13 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}Patient Records{% endblock %}
+{% block content %}
+<div class="grid g2">
+  <div class="card"><div class="row"><span class="stat" style="padding:0"><span class="ico">{% icon 'archive' 26 %}</span></span><div><h3>Records saved</h3><p class="muted small">Stored automatically after every paid check-up.</p></div></div>
+    <div class="chips mt"><div class="chip"><b>Paid check-ups</b>{{ record_count }}</div><div class="chip"><b>Patients</b>{{ patient_count }}</div></div>
+    <a class="btn primary lg mt" href="{% url 'admin-records-zip' %}">{% icon 'download' %} Download all records (ZIP)</a>
+    <p class="help mt-s">The ZIP has one folder per patient with each printable prescription (.html) and data file (.json), plus patients.csv and payments.csv.</p></div>
+  <div class="card"><h3>Where files are stored</h3><p class="muted mt-s">Each time a payment is received, the record is also written on this computer into:</p>
+    <div class="note mt-s small" style="word-break:break-all">{{ folder }}</div>
+    <p class="help mt-s">That folder is inside your project, so it is included whenever you zip the project. A single patient's ZIP can be downloaded from the patient's page.</p></div>
+</div>
+{% endblock %}

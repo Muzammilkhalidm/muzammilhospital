@@ -1,0 +1,56 @@
+{% extends "app.html" %}{% load ui %}
+{% block heading %}Check-up for {{ visit.patient.full_name }}{% endblock %}
+{% block subheading %}<div class="sub">{{ visit.code }} &middot; {{ visit.patient.code }} &middot; Fill the form, then send it to the admin desk</div>{% endblock %}
+{% block actions %}<a class="btn" href="{% url 'doctor-queue' %}">&larr; Queue</a>{% endblock %}
+{% block content %}
+<form method="post">{% csrf_token %}
+  {% if form.non_field_errors or formset.non_form_errors %}<div class="alert-form">{{ form.non_field_errors }}{{ formset.non_form_errors }}</div>{% endif %}
+  {{ formset.management_form }}
+  <div class="grid">
+    <div class="card">
+      <h3>{% icon 'user' %} Patient details</h3>
+      <div class="form-grid mt" style="grid-template-columns:repeat(4,1fr)">
+        <div class="field" style="grid-column:span 2">{% include "partials/field.html" with field=form.patient_name %}</div>
+        {% include "partials/field.html" with field=form.age %}{% include "partials/field.html" with field=form.gender %}
+        {% include "partials/field.html" with field=form.height_cm %}{% include "partials/field.html" with field=form.weight_kg %}
+        {% include "partials/field.html" with field=form.blood_pressure %}{% include "partials/field.html" with field=form.temperature %}
+        {% include "partials/field.html" with field=form.pulse %}
+      </div>
+    </div>
+    <div class="grid g2">
+      <div class="card"><h3>{% icon 'clipboard' %} Problems</h3><p class="help mb">Write one point on each line.</p>{% with field=form.problems %}{{ field }}{% for e in field.errors %}<div class="errors">{{ e }}</div>{% endfor %}{% endwith %}
+        <h3 class="mt">Diagnosis</h3><div class="mt-s">{{ form.diagnosis }}</div></div>
+      <div class="card"><h3>{% icon 'activity' %} Tests &amp; advice</h3><div class="field mt"><label>Tests advised</label>{{ form.tests }}</div><div class="field mt"><label>Advice / precautions</label>{{ form.advice }}</div></div>
+    </div>
+    <div class="card">
+      <div class="row between"><h3>{% icon 'pill' %} Medicines</h3><button type="button" class="btn sm" id="addRx">{% icon 'plus' 14 %} Add medicine</button></div>
+      <div class="rx-head mt"><span>Medicine</span><span>Dose</span><span>Frequency</span><span>Duration</span><span>Instructions</span><span></span></div>
+      <div class="rx-rows" id="rxRows">
+        {% for f in formset %}
+        <div class="rx-row">{{ f.id }}{% if f.non_field_errors %}<div class="errors">{{ f.non_field_errors }}</div>{% endif %}
+          {{ f.medicine }}{{ f.dose }}{{ f.frequency }}{{ f.duration }}{{ f.instructions }}
+          <span style="display:none">{{ f.DELETE }}</span><button type="button" class="rm" title="Remove">{% icon 'trash' 16 %}</button></div>
+        {% endfor %}
+      </div>
+      <p class="help mt-s">Empty rows are ignored.</p>
+    </div>
+    <div class="card">
+      <h3>{% icon 'arrow' %} Referral &amp; follow-up</h3>
+      <div class="form-grid mt" style="grid-template-columns:1fr 1fr 220px">
+        {% include "partials/field.html" with field=form.referral_to %}{% include "partials/field.html" with field=form.referral_notes %}{% include "partials/field.html" with field=form.follow_up %}
+      </div>
+    </div>
+    <div class="note small"><b>{{ visit.doctor.display_name }}</b>'s stamp ({{ visit.doctor.qualification }}, {{ visit.doctor.university }}) is added automatically at the bottom of the printed form.</div>
+  </div>
+  <div class="sticky-actions">
+    <button class="btn danger" form="delForm" data-confirm="Delete this draft?" type="submit">{% icon 'trash' %} Delete draft</button>
+    <span class="grow"></span>
+    <button class="btn" type="submit" name="draft" value="1">Save draft</button>
+    <button class="btn ok" type="submit" name="send" value="1" data-confirm="Send to admin? You cannot edit after sending.">{% icon 'check' %} Save &amp; send to admin</button>
+  </div>
+</form>
+<form id="delForm" method="post" action="{% url 'doctor-visit-delete' visit.pk %}">{% csrf_token %}</form>
+<template id="rxTemplate">
+  <div class="rx-row">{{ formset.empty_form.id }}{{ formset.empty_form.medicine }}{{ formset.empty_form.dose }}{{ formset.empty_form.frequency }}{{ formset.empty_form.duration }}{{ formset.empty_form.instructions }}<button type="button" class="rm" title="Remove">{% icon 'trash' 16 %}</button></div>
+</template>
+{% endblock %}
